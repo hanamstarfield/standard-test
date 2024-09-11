@@ -9,67 +9,72 @@ const App = () => {
   };
 
   const addPost = async (newPost) => {
-    await axios.post("http://localhost:4000/posts", newPost);
+    return await axios.post("http://localhost:4000/posts", newPost);
   };
 
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [views, setViews] = useState("");
 
-  const queryClient = useQueryClient();
-  const { data, isPending, isError } = useQuery({
+  const {
+    data: posts,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["posts"],
     queryFn: fetchPost,
   });
 
   const { mutate } = useMutation({
     mutationFn: addPost,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["posts"]);
-    },
+    onSuccess: queryClient.invalidateQueries(["posts"]),
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    mutate({ title, views: views });
-  };
-
-  if (isPending) {
-    return <div>로딩중...</div>;
+  if (isLoading) {
+    return <div>로딩중..</div>;
   }
-
   if (isError) {
-    return <div>오류 발생!</div>;
+    return <div>에러..</div>;
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          mutate({
+            title,
+            views,
+          });
+        }}
+      >
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="제목"
-          required
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
         />
         <input
-          type="number"
+          type="text"
           value={views}
-          onChange={(e) => setViews(e.target.value)}
-          placeholder="조회"
-          required
+          onChange={(e) => {
+            setViews(e.target.value);
+          }}
         />
-        <button>포스트 추가하기</button>
+        <button>추가하기</button>
       </form>
-      <div>
-        {data?.posts?.map((post) => {
+
+      <ul>
+        {posts.map((post) => {
           return (
-            <div key={post.id}>
-              <h3>{post.title}</h3>
-              <p>조회:{post.views}</p>
-            </div>
+            <li key={post.id}>
+              <h3>타이틀: {post.title}</h3>
+              <p>뷰: {post.views}</p>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 };

@@ -6,33 +6,19 @@
       "views": 100
     },
     {
-      "id": "2",
-      "title": "another title",
-      "views": 200
+      "id": "1c12",
+      "title": "123123",
+      "views": "111"
     },
     {
-      "id": "4ba4",
-      "queryKey": [
-        "posts"
-      ],
-      "signal": {}
+      "id": "4b55",
+      "title": "내가왔다",
+      "views": "31"
     },
     {
-      "id": "1c0e",
-      "title": "ㅁㅁㅁㅁ",
-      "views": "4"
-    }
-  ],
-  "comments": [
-    {
-      "id": "1",
-      "text": "a comment about post 1",
-      "postId": "1"
-    },
-    {
-      "id": "2",
-      "text": "another comment about post 1",
-      "postId": "1"
+      "id": "789d",
+      "title": "바로적용",
+      "views": "11"
     }
   ],
   "profile": {
