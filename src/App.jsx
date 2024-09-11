@@ -1,35 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const fetchPost = async () => {
+    const { data } = await axios.get("http://localhost:4000/posts");
+    return data;
+  };
+
+  const addPost = async (newPost) => {
+    await axios.post("http://localhost:4000/posts", newPost);
+  };
+
+  const [title, setTitle] = useState("");
+  const [views, setViews] = useState("");
+
+  const queryClient = useQueryClient();
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["posts"],
+    queryFn: fetchPost,
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: addPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["posts"]);
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    mutate({ title, views: views });
+  };
+
+  if (isPending) {
+    return <div>로딩중...</div>;
+  }
+
+  if (isError) {
+    return <div>오류 발생!</div>;
+  }
 
   return (
-    <>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="제목"
+          required
+        />
+        <input
+          type="number"
+          value={views}
+          onChange={(e) => setViews(e.target.value)}
+          placeholder="조회"
+          required
+        />
+        <button>포스트 추가하기</button>
+      </form>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {data?.posts?.map((post) => {
+          return (
+            <div key={post.id}>
+              <h3>{post.title}</h3>
+              <p>조회:{post.views}</p>
+            </div>
+          );
+        })}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default App;
